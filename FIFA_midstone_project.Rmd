@@ -1,0 +1,683 @@
+---
+title: "FIFA_midstone_project"
+output: html_notebook
+---
+
+
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(plotly)
+library(ggpubr)
+library(ggthemes)
+library(gganimate)
+library(scales)
+
+library(kableExtra)
+
+```
+
+```{r}
+#bring in the la_liga table dataset 
+la_liga_table <- read_csv('data/la_liga_table.csv')
+```
+
+
+```{r}
+glimpse(la_liga_table)
+
+```
+
+
+```{r}
+str(la_liga_table)
+
+```
+
+
+```{r}
+dim(la_liga_table)
+```
+
+
+```{r}
+summary(la_liga_table)
+
+```
+
+
+```{r}
+winner <- la_liga_table %>%
+  group_by(season) %>% 
+  top_n(1, points) %>% 
+  select(club, points)
+  
+winner <-winner[-c(38), ]
+
+```
+
+
+```{r}
+```
+
+
+```{r}
+champions <- winner %>% 
+  group_by(club) %>% 
+  count() %>% 
+  rename(champ = n) %>% 
+  arrange(desc(champ)) %>% 
+  ungroup()
+```
+
+
+```{r}
+```
+
+
+```{r}
+## set the levels in order we want
+# champions <- within(champions,
+#                     champions <- factor(champions,
+#                                         levels= names(sort(table(champions),
+#                                                            decreasing =TRUE))))
+# 
+
+```
+
+```{r}
+ggplot(champions, aes(x = reorder(club, -champ), y =champ))+
+  geom_bar(stat='identity',color='black',fill='steelblue')+
+  geom_text(aes(y = champ +1, label = champ ))
+
+```
+
+```{r}
+
+total_results <- la_liga_table %>% 
+  group_by(club) %>% 
+  summarise(
+    `total games` = sum(total_matches),
+    wins = sum(matches_won),
+    losses = sum(matches_lost),
+    draws = sum(matches_drawn)
+  ) %>% 
+  arrange(desc(`total games`),desc(wins),desc(losses)) %>% 
+  ungroup() 
+
+total_results
+
+
+```
+```{r}
+#pivot the data 
+total_results <- total_results %>% 
+  pivot_longer(`total games`:draws, names_to ='games',
+               values_to ='number') %>%
+  filter(club =='Real Madrid'| club == 'FC Barcelona'| club == 'Atlético Madrid' | club == 'Valencia CF' | club == 'Athletic Club de Bilbao' | club == ' Real Sociedad' | club == 'Deportivo Alavés' | club ==  'RCD Espanyol' | club == 'Sevilla FC' | club == 'Real Zaragoza'| club == 'Real Betis' | club == 'Real Sporting de Gijón' | club == 'RC Celta' | club == 'CA Osasuna' | club == 'Real Valladolid CF')
+  
+  
+  
+
+total_results
+```
+
+
+```{r}
+#grouped bar chart
+# A few explanation about the code below:
+# 
+# input dataset must provide 3 columns: the numeric value (value), and 2 categorical variables for the group (specie) and the subgroup (condition) levels.
+# in the aes() call, x is the group (specie), and the subgroup (condition) is given to the fill argument.
+# in the geom_bar() call, position="dodge" must be specified to have the bars one beside each other.
+
+ggplot(total_results, aes(x = club, y = number, fill = games))+
+  geom_col(position = 'dodge')+
+  theme(axis.text.x = element_text(angle = 90))
+
+```
+
+
+```{r}
+win_loss_total <- la_liga_table %>% 
+  select(season, club, home_win, away_win, home_loss, away_loss) %>% 
+  group_by(club) %>% 
+  summarize(
+    `home win` = sum(home_win),
+    `away win` = sum(away_win),
+    `home loss` = sum(home_loss),
+    `away loss` = sum(away_loss)
+  ) %>% 
+  ungroup()
+
+win_loss_total
+
+```
+
+
+```{r}
+win_loss_total <- win_loss_total %>% 
+  pivot_longer(`home win`:`away win`, names_to = 'win',
+               values_to = 'wins') %>% 
+  pivot_longer(`home loss`:`away loss`,names_to = 'loss',
+               values_to = 'losses')
+win_loss_total
+
+```
+
+
+```{r}
+ggplot(win_loss_total, aes(x = club, y = wins, fill = win))+
+  geom_col(position = 'dodge')+
+  ggtitle('Total home and away wins')+
+  xlab('')+
+  theme(axis.text.x = element_text(angle = 90))
+```
+
+
+```{r}
+ggplot(win_loss_total, aes(x = club, y = losses, fill = loss))+
+  geom_col(position = 'dodge')+
+  ggtitle('Total home and away losses')+
+  xlab('')+
+  theme(axis.text.x = element_text(angle = 90))
+  
+
+```
+
+
+```{r}
+goals <- la_liga_table %>% 
+  select(season, club, home_goals, away_goals, goals_scored, goals_conceded, goal_difference) %>% 
+  group_by(club) %>% 
+  summarize(
+    home_goals = sum(home_goals),
+    away_goals = sum(away_goals),
+    total_goals_scored = sum(goals_scored),
+    goals_conceded = sum(goals_conceded),
+    goal_difference = sum(goal_difference)
+  ) %>% 
+  ungroup()
+
+goals
+
+```
+
+
+```{r}
+#total goals scored
+goals %>% 
+  mutate(club = fct_reorder(club,total_goals_scored)) %>% 
+  ggplot(aes(x = club, y = total_goals_scored))+
+  geom_col(fill='purple', width = .5)+
+  coord_flip()
+
+
+
+
+
+```
+
+```{r}
+#total goals conceded
+goals %>% 
+  mutate(club = fct_reorder(club,goals_conceded)) %>% 
+  ggplot(aes(x = club, y = goals_conceded))+
+  geom_col(fill="darkblue",alpha = .8, width = .5)+
+  theme(axis.text.x = element_text(angle = 90))
+
+```
+
+```{r}
+
+
+```
+
+
+```{r}
+
+```
+
+
+```{r}
+win_vs_goals <- la_liga_table %>% 
+  select(season, club,matches_won, matches_lost,goals_scored, goals_conceded,goal_difference) %>% 
+  group_by(club) %>% 
+  summarize(
+    won = sum(matches_won),
+    lost = sum(matches_lost),
+    goals_scored = sum(goals_scored),
+    goals_conceded = sum(goals_conceded),
+    goal_diff = sum(goal_difference)
+  ) %>% 
+  ungroup()
+
+win_vs_goals
+```
+
+```{r}
+
+```
+
+```{r}
+# A scatter plot of goals scored vs games won
+ggplot(win_vs_goals, aes(x=won, y=goals_scored, color= club)) + 
+    geom_point()+
+  theme(
+    legend.position = "none"
+  )+
+  geom_label(
+    data = win_vs_goals %>%filter(won>500 & goals_scored >2000),aes(label = club)
+  )
+
+
+
+
+
+```
+
+
+```{r}
+#goals scored vs games won
+ggscatter(win_vs_goals, x= 'won', y='goals_scored',
+          add= 'reg.line',conf.int=TRUE,
+          cor.coef=TRUE, cor.method= 'pearson',
+          xlab='total wins', ylab= 'total goals scored')+
+  theme(legend.position='none')
+
+```
+
+
+```{r}
+# A scatter plot of goals conceded vs games won
+ggplot(win_vs_goals, aes(x=won, y=goals_conceded, color= club)) + 
+    geom_point()+
+  theme(
+    legend.position = "none"
+  )+
+  geom_label(
+    data = win_vs_goals %>%filter(won>500 & goals_scored >2000),aes(label = club)
+  )
+```
+
+
+```{r}
+#goals allowed vs games won
+ggscatter(win_vs_goals, x= 'won', y='goals_conceded',
+          add= 'reg.line',conf.int=TRUE,
+          cor.coef=TRUE, cor.method= 'pearson',
+          xlab='total wins', ylab= 'total goals allowed')+
+  theme(legend.position='none')
+```
+
+
+```{r}
+ ggplot(win_vs_goals,aes(x=won, y=goal_diff, color = club))+
+  geom_point()+
+  theme(
+    legend.position = "none"
+  )+
+  geom_label(
+    data = win_vs_goals %>%  filter(won>500 & goal_diff >10),aes(label=club)
+  )
+  
+```
+
+
+```{r}
+
+ 
+ggscatter(win_vs_goals,x= 'won',y='goal_diff',
+          add= 'reg.line',conf.int=TRUE,
+          cor.coef=TRUE, cor.method= 'pearson',
+          xlab='total wins', ylab= 'total goals allowed')+
+  theme(legend.position='none')
+```
+```{r}
+#bring in the la_liga table dataset 
+player_data <- read_csv('data/fifa_player_data_07-17.csv') %>% 
+  rename(season = Year, club = Club)
+```
+```{r}
+dim(player_data)
+```
+
+
+```{r}
+#filter table to 2007 and up
+table_07_up <- la_liga_table %>% 
+  filter(season >= 2007)
+#merge the data by club and season/year
+
+player_n_laliga_table <- table_07_up %>% 
+  inner_join(player_data, by= c('club', 'season'))
+
+dim(player_n_laliga_table)
+
+```
+```{r}
+player_n_laliga_table %>% 
+  select(season) %>% 
+  unique()
+```
+
+
+```{r}
+
+```
+
+```{r}
+#champions from 2007 to 2017
+champ_07 <-player_n_laliga_table %>% 
+  group_by(season) %>% 
+  top_n(1, points) %>% 
+  select(club, points) %>% 
+  unique()
+
+champ_07 <-champ_07[-2, ]
+
+champ_07 <- champ_07 %>% 
+  group_by(club) %>% 
+  count() %>% 
+  rename(trophies = n) %>% 
+  arrange(desc(trophies)) %>% 
+  ungroup()
+
+champ_07
+
+```
+
+```{r}
+#winners from 2007 to 2017
+ggplot(champ_07, aes(x = reorder(club, -trophies), y =trophies))+
+  geom_bar(stat='identity',color='black',fill='red')+
+  geom_text(aes(y = trophies +.2, label = trophies ))
+
+```
+
+
+```{r}
+player_n_laliga_table 
+```
+
+
+```{r}
+#distribution of age over the 11 seasons
+ggplot(player_n_laliga_table, aes(x = Age))+
+  geom_histogram(bins=25)+
+  facet_wrap(~season)
+
+```
+```{r}
+#distribution of age over the 11 seasons
+ggplot(player_n_laliga_table, aes(x = Age))+
+  geom_histogram(bins=25)+
+  facet_grid(Position~season)
+```
+
+
+```{r}
+#library(ggthemes)
+player_n_laliga_table %>%
+  group_by(season,Age) %>% 
+  summarise(Rating = mean(Overall)) %>% 
+  ggplot(aes(x = Age, y = Rating, group = 1))+
+  geom_line(color = 'red', size = 1)+
+  ggtitle('The Age Curve Flattens Off', subtitle = 'player ratings tend not to get better after the age of 30')+
+  xlab('Age')+
+  theme_fivethirtyeight()+
+  theme(axis.title = element_text(), axis.title.y = element_blank(), axis.title.x = element_text(face = 'bold'))+
+  facet_wrap(~season)
+
+```
+
+
+```{r}
+#age vs rating per year per position
+player_n_laliga_table %>% 
+  group_by(season, Position, Age) %>% 
+  summarise(Rating = mean(Overall)) %>% 
+  ggplot(aes(x = Age, y = Rating, group = Position,color = Position))+
+  geom_line(size = 1)+
+  theme_fivethirtyeight()+
+  facet_grid(Position ~season, scales = "free_y")+
+  theme(strip.background = element_rect (fill = 'darkgreen'), strip.text = element_text(colour = 'white', face = 'bold'))
+  
+#facet_grid(vs ~ carb)
+```
+
+
+```{r}
+player_n_laliga_table %>% 
+  filter(season == 2016) %>% 
+  ggplot(aes(x = Position, y= Value_spread))+
+  geom_boxplot(fill= 'darkgrey')+
+  scale_y_log10(labels= dollar_format(prefix = "$"))+
+  ggtitle('Positions to Break the Transfer market in 2016', subtitle = 'Attackers and midfielders bring the fans to games...\nPay them the money!')+
+  theme_fivethirtyeight()
+
+```
+
+```{r}
+player_n_laliga_table %>% 
+  mutate(agebox = ifelse(Age <= 20, '20 and under', ifelse(Age >20 & Age <=25, '21 to 25', ifelse(Age >25 & Age <=30, '25 to 30', ifelse(Age >30 & Age <=35, '31 to 35', 'Over 35')))))%>% 
+  ggplot(aes(x = agebox, y = Value_spread))+
+  geom_boxplot(fill = 'darkgrey')+
+  scale_y_log10(labels = dollar_format(prefix = "$"))+
+  ggtitle('players are in high demand in their mid-20s', subtitle= 'valuation on a log scale, so differences \nbetween the age groups are significant')+
+  theme_fivethirtyeight()
+```
+
+
+```{r}
+#team rating overall, in the 11 years average 
+top_20_overall_clubs <-player_n_laliga_table %>% 
+  group_by(club) %>% 
+  summarise(AverageRating = mean(Overall)) %>% 
+  arrange(desc(AverageRating)) %>% 
+  head(n=20) %>% 
+  pull(club)
+
+player_n_laliga_table %>% 
+  filter(club %in% top_20_overall_clubs) %>% 
+  mutate(top3 = ifelse(club %in% c('FC Barcelona', 'Real Madrid', 'Atlético Madrid'), 'Yes','No')) %>% 
+  ggplot(aes(x= reorder(club,Overall), y = Overall, fill= top3))+
+  geom_boxplot(color = 'black')+
+  scale_fill_manual(values= c('lightgrey','green'))+
+  ggtitle('The teams with the highest Overall Ratings', subtitle= 'the average ovarall rating of the 20 highest rated teams in the game')+
+  coord_flip()+
+  theme_fivethirtyeight()+
+  theme(legend.position= 'none')
+  
+#top_20_overall_clubs
+```
+
+```{r}
+##teams with the most elite players i.e.(players with a rating of >=85)
+player_n_laliga_table %>% 
+  mutate(ElitePlayers = ifelse(Overall >=85, 'Elite','Not Elite')) %>% 
+  group_by(season, club, ElitePlayers) %>% 
+  filter(ElitePlayers == 'Elite') %>% 
+  summarize(NumberElitePlayers = n()) %>% 
+  #filter(NumberElitePlayers >1) %>% 
+  mutate(top3 = ifelse(club %in% c('FC Barcelona','Real Madrid','Atlético Madrid'), 'Yes','No')) %>% 
+  arrange(desc(NumberElitePlayers)) %>% 
+  ggplot(aes(x = reorder(club, NumberElitePlayers), y = NumberElitePlayers, fill= top3))+
+  geom_col(color = 'black')+
+  scale_fill_manual(values = c('lightgrey','blue'))+
+  coord_flip()+
+  facet_wrap(~season, scales = 'free_x')+
+  scale_y_continuous(breaks = seq(1,12,1))+
+  theme_fivethirtyeight()+
+  theme(legend.position ='none')
+
+
+```
+
+```{r}
+```
+
+
+```{r}
+require(scales)
+player_n_laliga_table %>% 
+  filter(season == 2017) %>% 
+  select(Name, Nationality, Overall, Value_spread, Wage_spread) %>% 
+  group_by(Value_spread) %>% 
+  arrange(desc(Value_spread)) %>% 
+  head(30) %>% 
+  ungroup() %>% 
+  ggplot(mapping = aes( x= Name, y = Value_spread, color = Nationality, fill = Nationality, alpha = Value_spread, size = Value_spread))+
+  geom_bar( stat = 'identity')+
+  coord_polar()+
+  theme_minimal()+
+  labs( x = 'Name', y = 'Value_spread', title = 'Highest Valued Players in 2017')+
+  theme(plot.title = element_text(hjust = 0.3), legend.position = 'bottom')+
+  scale_y_continuous(labels = comma)
+
+
+
+```
+
+
+```{r}
+```
+
+
+```{r}
+#for the year 2017
+player_n_laliga_table %>% 
+  filter(season== 2017) %>% 
+  select(season,Name, Nationality, Overall, Value_spread,Wage_spread) %>% 
+  group_by(season,Overall) %>% 
+  arrange(desc(Overall)) %>% 
+ head(30) %>% 
+  ggplot( mapping = aes(x=Name, y=Overall, color=Nationality, alpha=Overall, size= Overall))+
+  geom_point()+
+  coord_polar()+
+  theme_minimal()+
+  labs(x = 'Name', y ='Overall', title ='Overall Top Players for 2017')+
+  theme(plot.title = element_text(hjust=0.5),legend.position ='bottom')+
+  scale_y_continuous(labels = comma)
+```
+
+
+```{r}
+
+```
+
+
+```{r}
+# drawing a world map with highlights
+###############options(scipen=999)#to prevent scientific notation
+value_data <- player_n_laliga_table %>%
+  filter(season %in% c(2016,2017)) %>% 
+  select(Name, Nationality, Value_spread) %>% 
+  group_by(Nationality) %>% 
+  summarize(count=n(),
+            Avg_Value = mean(Value_spread)) %>% 
+  arrange(desc(Avg_Value)) 
+
+worldmap=map_data('world')
+
+merged_data <- merge(x = worldmap, y = value_data, by.x='region',by.y='Nationality', all.x=TRUE) %>% 
+  arrange(order)
+  ggplot(data= merged_data, aes(x= long, y=lat, group=group))+
+  geom_polygon(aes(fill = Avg_Value))+
+  labs(fill = 'Average Values')
+```
+
+
+```{r}
+```
+
+
+```{r}
+country_per_team_per_year <- player_n_laliga_table %>% 
+  group_by(season,club) %>%
+  count(Nationality) %>% 
+  ungroup()
+
+country_per_team_per_year
+```
+
+```{r}
+country_per_team_per_year %>%
+  
+  filter(Nationality == 'Spain'& season == 2017) %>%
+  mutate(top3 = ifelse(club %in% c('FC Barcelona', 'Real Madrid', 'Atlético Madrid'), 'Yes','No'))%>% 
+  ggplot(aes(x = reorder(club,-n), y = n, fill = top3))+
+  geom_bar(stat = 'identity', color= 'black')+
+  scale_fill_manual(values= c('lightgrey','darkorange'))+
+  coord_flip()+
+  geom_text(aes(y = n +1, label = n ))+
+  theme_fivethirtyeight()+
+  theme(legend.position= 'none')
+  #facet_wrap(~season, scale = 'free_x')
+  
+```
+
+
+```{r}
+#library(gganimate)
+la_liga_table %>% 
+  group_by(season) %>% 
+  mutate(rank = order(order(points, decreasing = TRUE))) %>% 
+  select(season, club,points, rank ) %>% 
+  ungroup() %>% 
+  filter(club %in% c('Real Madrid','FC Barcelona','Atlético Madrid','Valencia CF','Athletic Club de Bilbao','Real Sociedad','Deportivo Alavés')) %>% 
+  ggplot(aes(x=season, y=rank, group=club, color=club))+
+  geom_line()+
+  scale_y_continuous(breaks = seq(1,21,1))+
+  scale_x_continuous(breaks = seq(1970,2018,1))+
+  scale_color_viridis_d()+
+  labs(x = "Season", y = "Position") +
+  theme(axis.text.x = element_text(angle = 90), legend.position = "top")+ transition_reveal(season)
+
+```
+
+
+```{r}
+#got the new version of R
+###R.Version()
+```
+
+
+```{r}
+
+
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
