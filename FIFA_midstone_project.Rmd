@@ -13,7 +13,8 @@ library(ggpubr)
 library(ggthemes)
 library(gganimate)
 library(scales)
-
+#install.packages("highcharter")
+library(highcharter)
 library(kableExtra)
 
 ```
@@ -613,11 +614,102 @@ country_per_team_per_year %>%
   coord_flip()+
   geom_text(aes(y = n +1, label = n ))+
   theme_fivethirtyeight()+
-  theme(legend.position= 'none')
+  theme(legend.position= 'none')+
+  ggtitle('2017 season winner: Madrid')
   #facet_wrap(~season, scale = 'free_x')
   
 ```
 
+```{r}
+country_per_team_per_year %>%
+  
+  filter(Nationality == 'Spain'& season == 2016) %>%
+  mutate(top3 = ifelse(club %in% c('FC Barcelona', 'Real Madrid', 'Atlético Madrid'), 'Yes','No'))%>% 
+  ggplot(aes(x = reorder(club,-n), y = n, fill = top3))+
+  geom_bar(stat = 'identity', color= 'black')+
+  scale_fill_manual(values= c('lightgrey','darkgreen'))+
+  coord_flip()+
+  geom_text(aes(y = n +1, label = n ))+
+  theme_fivethirtyeight()+
+  theme(legend.position= 'none')+
+  ggtitle("2016 season winner:Barca")
+  #facet_wrap(~season, scale = 'free_x')
+
+```
+```{r}
+country_per_team_per_year %>%
+  
+  filter(Nationality == 'Spain'& season == 2015) %>%
+  mutate(top3 = ifelse(club %in% c('FC Barcelona', 'Real Madrid', 'Atlético Madrid'), 'Yes','No'))%>% 
+  ggplot(aes(x = reorder(club,-n), y = n, fill = top3))+
+  geom_bar(stat = 'identity', color= 'black')+
+  scale_fill_manual(values= c('lightgrey','blue'))+
+  coord_flip()+
+  geom_text(aes(y = n +1, label = n ))+
+  theme_fivethirtyeight()+
+  theme(legend.position= 'none')+
+  ggtitle("2015 season winner:Barca")
+```
+
+
+```{r}
+country_per_team_per_year %>%
+  
+  filter(Nationality == 'Spain'& season == 2014) %>%
+  mutate(top3 = ifelse(club %in% c('FC Barcelona', 'Real Madrid', 'Atlético Madrid'), 'Yes','No'))%>% 
+  ggplot(aes(x = reorder(club,-n), y = n, fill = top3))+
+  geom_bar(stat = 'identity', color= 'black')+
+  scale_fill_manual(values= c('lightgrey','yellow'))+
+  coord_flip()+
+  geom_text(aes(y = n +1, label = n ))+
+  theme_fivethirtyeight()+
+  theme(legend.position= 'none')+
+  ggtitle("2014 season winner:Atletico")
+```
+
+
+```{r}
+country_per_team_per_year %>%
+  
+  filter(Nationality == 'Spain'& season == 2013) %>%
+  mutate(top3 = ifelse(club %in% c('FC Barcelona', 'Real Madrid', 'Atlético Madrid'), 'Yes','No'))%>% 
+  ggplot(aes(x = reorder(club,-n), y = n, fill = top3))+
+  geom_bar(stat = 'identity', color= 'black')+
+  scale_fill_manual(values= c('lightgrey','purple'))+
+  coord_flip()+
+  geom_text(aes(y = n +1, label = n ))+
+  theme_fivethirtyeight()+
+  theme(legend.position= 'none')+
+  ggtitle("2013 season winner:Barca")
+```
+
+
+```{r}
+country_per_team_per_year %>%
+  
+  filter(Nationality == 'Spain'& season == 2012) %>%
+  mutate(top3 = ifelse(club %in% c('FC Barcelona', 'Real Madrid', 'Atlético Madrid'), 'Yes','No'))%>% 
+  ggplot(aes(x = reorder(club,-n), y = n, fill = top3))+
+  geom_bar(stat = 'identity', color= 'black')+
+  scale_fill_manual(values= c('lightgrey','lightgreen'))+
+  coord_flip()+
+  geom_text(aes(y = n +1, label = n ))+
+  theme_fivethirtyeight()+
+  theme(legend.position= 'none')+
+  ggtitle("2012 season winner:madrid")
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
 
 ```{r}
 #library(gganimate)
@@ -647,6 +739,628 @@ la_liga_table %>%
 ```{r}
 
 
+```
+
+##########Try to make a cool looking table#######
+
+########install libraries to make the cool table ##
+
+```{r}
+
+
+library(gridExtra)
+library(grid)
+```
+
+```{r}
+#bring in the la_liga table dataset 
+la_liga_2.0 <- read_csv('data/la_liga_table.csv') %>% 
+  group_by(season) %>% 
+  mutate (pos = order(order(points, decreasing = TRUE))) %>%
+  ungroup()
+```
+
+
+```{r}
+
+```
+* Using `dplyr` helper functions, including:
+    * `starts_with()`
+    * `ends_with()`
+    * `contains()`
+    * `one_of()` if you need to specify columns as a string
+    * `everything()`
+
+
+```{r}
+library(gt)
+
+#remotes::install_github("rstudio/gt")
+o_10 <- la_liga_2.0 %>% 
+  filter(season == 2010) %>% 
+  arrange(pos) %>% 
+  select(season,pos,Team = club,Played = total_matches,HW = home_win, HL = home_loss,HG = home_goals, 
+         AW = away_win, AL = away_loss, AG = away_goals, 
+         Wins = matches_won, Draws = matches_drawn, Losses = matches_lost,
+         For = goals_scored,Against = goals_conceded,
+        `Goal Diff` = goal_difference, Points = points)
+         
+```
+
+
+
+
+
+```{r}
+la_liga_2.0 %>% 
+  filter(season == 1990) %>% 
+  arrange(pos)
+```
+
+
+```{r}
+lame <-gt(o_10) 
+
+ o_10 %>%
+  gt(rowname_col = "season") %>%
+   
+  tab_spanner(
+    label = "HOME",
+    columns = vars(HW, HL, HG)
+  ) %>%
+  tab_spanner(
+    label = "AWAY",
+    columns = vars(AW, AL, AG)
+  ) %>% 
+   tab_spanner(
+     label = "TOTAL",
+     columns = vars(Wins,Draws,Losses,For,
+                   Against,`Goal Diff`,Points)
+   )%>%
+  tab_style(
+    style = list(
+      cell_fill(color = "red"),
+      cell_text(color = "black")
+      ),
+    locations = cells_body(
+      rows = pos >= 18)
+  ) %>% 
+   tab_style(
+     style= list(
+       cell_fill(color = 'lightgreen'),
+       cell_text(color = 'black')
+       
+     ),
+     locations = cells_body(
+       rows = pos == 1)
+     )
+ 
+   
+```
+
+```{r}
+```
+
+
+```{r}
+order <- la_liga_2.0 %>% 
+  arrange(pos) %>% 
+  select(season,pos,Team = club,Played = total_matches,HW = home_win, HL = home_loss,HG = home_goals, 
+         AW = away_win, AL = away_loss, AG = away_goals, 
+         Wins = matches_won, Draws = matches_drawn, Losses = matches_lost,
+         For = goals_scored,Against = goals_conceded,
+        `Goal Diff` = goal_difference, Points = points)
+  
+order <- gt(order)
+```
+
+
+```{r}
+#lame <-gt(o_10) 
+
+ #a <- order %>%
+  #gt(rowname_col = "season") %>%
+  order %>%
+  tab_spanner(
+    label = "HOME",
+    columns = vars(HW, HL, HG)
+  ) %>%
+  tab_spanner(
+    label = "AWAY",
+    columns = vars(AW, AL, AG)
+  ) %>% 
+   tab_spanner(
+     label = "TOTAL",
+     columns = vars(Wins,Draws,Losses,For,
+                   Against,`Goal Diff`,Points)
+   )%>%
+  tab_style(
+    style = list(
+      cell_fill(color = "red"),
+      cell_text(color = "black")
+      ),
+    locations = cells_body(
+      rows = pos >= 18)
+  ) %>% 
+   tab_style(
+     style= list(
+       cell_fill(color = 'lightgreen'),
+       cell_text(color = 'black')
+       
+     ),
+     locations = cells_body(
+       rows = pos == 1)
+     )
+```
+
+
+```{r}
+# trial.df <- as.data.frame(trial)
+# str(trial.df)
+
+```
+
+
+```{r}
+order %>% 
+  cells_column_labels()
+```
+
+
+```{r}
+order %>% 
+  select(season)
+
+```
+
+
+
+
+```{r}
+la_liga_2.0 <- data.frame(la_liga_2.0)
+```
+
+
+```{r}
+
+team <- "club"
+matches <- c("matches_won","matches_drawn","matches_lost")
+
+  highchart() %>% 
+  hc_title(text = 'Results per Team') %>% 
+  hc_xAxis(categories = la_liga_2.0[,'club'],
+           title = 'club') %>% 
+  hc_add_series(name = 'Wins',
+                #type = 'column',
+                data = la_liga_2.0[,matches[1]]) %>% 
+  hc_add_series(name = 'Draws',
+                #type = 'column',
+                data = la_liga_2.0[,matches[2]]) %>% 
+  hc_add_series(name = 'Losses',
+                #type = 'column',
+                data = la_liga_2.0[,matches[3]]) %>% 
+    hc_chart(type = "column") %>% 
+    hc_colors(c('#90ed7d', '#cccccc', '#ff3333')) %>%
+    hc_tooltip(crosshairs = TRUE, shared = TRUE)
+```
+
+```{r}
+
+
+  # 
+  #   #plot
+  #   highchart() %>%
+  #     hc_title(text = "Results per Team") %>%
+  #     hc_xAxis(categories = footy_all_result[, Team]) %>%
+  #     hc_add_series(name = 'Wins', 
+  #                   type = 'column', 
+  #                   data = footy_all_result[, Wins])   %>%
+  #     hc_add_series(name = 'Draws', 
+  #                   type = 'column',
+  #                   data = footy_all_result[, Draws])  %>%
+  #     hc_add_series(name = 'Losses', 
+  #                   type = 'column',
+  #                   data = footy_all_result[, Losses]) %>%
+  #     hc_colors(c('#90ed7d', '#cccccc', '#ff3333')) %>%
+  #     hc_tooltip(crosshairs = TRUE, shared = TRUE)
+  #   
+  # })
+
+
+ 
+  #seen like you have to do data.frame() in order for highchart() to work  
+  chart <- data.frame(la_liga_2.0) %>% 
+  filter(season == 2017)
+  
+  #team <- "club"
+  matches <- c("goals_scored","goals_conceded","goal_difference")
+  
+  highchart() %>% 
+    hc_title(text = paste('Goals per Team:')) %>% 
+    hc_xAxis(categories = chart[,'club'],
+             title = 'club') %>% 
+    hc_add_series(name = 'Goals Scored',
+                  type = 'column',
+                  data = chart[,matches[1]]) %>% 
+    hc_add_series(name = 'Goals Conceded',
+                  type = 'column',
+                  data = chart[,matches[2]]) %>% 
+    hc_add_series(name = 'Goal Difference',
+                  type = 'spline',
+                  data = chart[,matches[3]]) %>% 
+    #hc_chart(type = "column") %>% 
+    hc_colors(c('#1aadce', '##2f7ed8', '#ff3333')) %>%
+    hc_tooltip(crosshairs = TRUE, shared = TRUE)%>% 
+    hc_yAxis(title = list(text = "Games Played"))
+  
+
+```
+
+```{r}
+sample_data <- data.frame(
+  "Countries" = c(
+    "United Kingdom","France","Saudi Arabia","Egypt","Germany","China","Slovakia","Canada","Estonia","Ireland"
+  ),
+  "Business" =  c(8, 6, 7, 8, 9, 7, 9, 7, 9, 9),
+  "Overlay" = c(22, 28, 11, 19, 11, 39, 22, 10, 30, 7),
+  "Personal" = c(19, 21, 21, 20, 19, 19, 21, 21, 20, 20),
+  "Teleconference" = c(9, 29, 21, 44, 59, 11, 53, 16, 49, 36),
+  "Unclassified" = c(42, 48, 50, 45, 49, 40, 42, 47, 48, 44)#,
+  #stringsAsFactors = F
+)
+categories_column <- "Countries"
+measure_columns <- c("Business","Overlay","Personal","Teleconference","Unclassified")
+```
+
+
+```{r}
+base_highchart <- highchart() %>%
+  hc_xAxis(categories = sample_data[,categories_column],
+           title = categories_column) %>%
+  hc_add_series(name = measure_columns[1],
+                data = sample_data[,measure_columns[1]]) %>%
+  hc_add_series(name = measure_columns[2],
+                data = sample_data[,measure_columns[2]]) %>%
+  hc_add_series(name = measure_columns[3],
+                data = sample_data[,measure_columns[3]]) %>%
+  hc_add_series(name = measure_columns[4],
+                data = sample_data[,measure_columns[4]]) %>%
+  hc_add_series(name = measure_columns[5],
+                data = sample_data[,measure_columns[5]])
+
+base_highchart %>% hc_chart(type = "column")
+```
+
+
+```{r}
+survey18 %>% 
+  count(YearsCoding, Employment) %>% 
+  hchart('line', hcaes(x = 'YearsCoding', y = 'n', group = "Employment"))
+```
+
+
+```{r}
+la_liga_2.0 %>%
+  
+  count(season,club,pos) %>% 
+  hchart('line', hcaes(x= 'season', y = 'pos', group = 'club')) 
+  
+```
+
+
+```{r}
+
+```
+
+```{r}
+la_liga_2.0
+```
+
+
+```{r}
+la_liga_2.0 %>%
+  group_by(season, club) %>% 
+  filter(pos == 1) %>%
+  ungroup() %>%
+  group_by(club) %>% 
+  count() %>% 
+  rename(champ = n) %>% 
+  arrange(desc(champ)) %>% 
+  ungroup() %>% 
+  hchart('treemap', hcaes(x = 'club', value = 'champ', color = 'champ')) %>% 
+   hc_colorAxis(
+    minColor = "gray",
+    maxColor = "yellow"
+  )
+  
+  
+```
+
+
+```{r}
+
+
+```
+
+
+```{r}
+
+
+```
+
+```{r}
+#bring in the player data
+with_players <-read_csv('data/fifa_player_data_07-17.csv') %>% 
+  rename(season = Year, club = Club) %>% 
+  filter(season >= 2007) %>% 
+  inner_join(la_liga_2.0, by = c('club', 'season')) %>% 
+  select(season, club, everything())
+```
+
+
+```{r}
+view(with_players)
+```
+
+
+```{r}
+
+dim(with_players)
+
+```
+
+
+```{r}
+with_players
+```
+
+
+```{r}
+with_players %>% 
+  group_by(season, club, Nationality) %>% 
+  count() %>% 
+  rename(national_variance = n)
+```
+
+
+```{r}
+work_df <- with_players %>% 
+  select(season,club,Name)
+work_df
+```
+
+
+```{r}
+
+```
+
+
+```{r}
+find_new_players <- function ( year, team) {
+  
+
+    A <- work_df %>% 
+    filter(club == team & season == year) %>% 
+    pull(Name)
+  
+    B <- work_df %>% 
+    filter(club == team & season == year -1) %>% 
+    pull(Name)
+    
+    difference <-setdiff(A, B)
+   
+ 
+ return (difference)
+}
+
+```
+
+```{r}
+find_new_players(year = 2007, team = 'Real Madrid')
+```
+
+```{r}
+A <- work_df %>% 
+  filter(club == 'Real Madrid' & season == 2016) %>% 
+  pull(Name)
+A
+
+```
+
+```{r}
+B <- work_df %>% 
+  filter(club == 'Real Madrid' & (season == 2016-1)) %>% 
+  pull(Name)
+B
+
+```
+
+```{r}
+setdiff(B,A)
+```
+
+```{r}
+with_players
+```
+```{r}
+just_for_sample <-with_players %>% 
+  filter(season == 2016 & club == 'Real Madrid') %>% 
+  arrange(desc(Overall))
+  
+just_for_sample 
+```
+
+```{r}
+highchart() %>% 
+  hc_chart(polar = TRUE) %>% 
+  hc_title(text = 'Player Rating',
+           style = list(fontWeight = 'bold', fontSize = '20px', align = 'center')) %>% 
+  hc_subtitle(text = '85 or higher is considered Elite Player',
+              stype = list(fontWeight = 'bold'), align = 'center') %>% 
+  hc_xAxis(categories = just_for_sample$Name, style = list(fontWeight = 'bold')) %>% 
+  hc_legend(enabled = FALSE) %>% 
+  #hc_add_theme(hc_theme_tufte()) %>%
+  hc_series(
+    list(
+      name = "Bars",
+      data = just_for_sample$Overall,
+      colorByPoint = TRUE,
+      type = "column",
+      colors = ifelse(just_for_sample$Overall >= 85, 'purple','light')),
+    list(
+      name = 'Overall Rating',
+      data = just_for_sample$Overall,
+      pointPlacement = 'on',
+      type = 'line'
+    )
+  )
+  
+```
+
+
+```{r}
+
+```
+
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+
+```{r}
+sunburst_chart <-with_players %>% 
+  filter(season == 2016 & club == 'Real Madrid') %>% 
+  arrange(desc(Overall)) 
+sunburst_chart
+```
+
+
+```{r}
+# Install package from CRAN:
+#install.packages("collapsibleTree")
+#library(collapsibleTree)
+
+```
+
+
+```{r}
+
+```
+
+
+```{r}
+collapsibleTree(
+  sunburst_chart,
+  hierarchy = c("Nationality","Name","Age","Position"),
+  width = 700,
+  zoomable = TRUE
+  
+)
+```
+
+
+```{r}
+
+
+
+
+```
+
+
+```{r}
+#install.packages('d3Tree')
+#library(d3Tree)
+random_tree  <- sunburst_chart %>% 
+  group_by(club,Nationality, Name, Age,Position) %>% 
+  count()
+d3tree(list(root = df2tree(rootname = 'Your selected Team', struct = as.data.frame(random_tree)),
+            layout = 'collapse'))
+
+```
+
+```{r}
+#library(treemap)
+#install.packages("sunburstR")
+#library(sunburstR)
+
+  
+
+```
+
+
+```{r}
+#library(data.table)
+
+
+
+```
+
+
+```{r}
+# Libraries
+#library(ggraph)
+#library(igraph)
+
+ 
+
+
+```
+
+
+```{r}
+this_one <-with_players %>% 
+  filter(season == 2007) %>% 
+  group_by(season, club) %>% 
+  mutate (Ov_average = mean(Overall))
+this_one
+
+overall_average <-this_one %>% 
+  group_by(season,club) %>% 
+  summarize(overall_average = unique(mean(Overall))) %>% 
+  ungroup()
+```
+
+
+```{r}
+# plotline <- list(
+#   color = "red", value = mean(this_one$Age), width = 2, zIndex = 5
+# )
+# 
+# hcboxplot(x = this_one$Age, var = this_one$club,
+#           name = "Age", color = "#2980b9") %>% 
+#   hc_chart(type = "column") %>%
+#   hc_yAxis(plotLines = list(plotline))
+  
+   # to put box vertical
+```
+
+
+```{r}
+highchart() %>% 
+  hc_add_series_boxplot(x = this_one$Age, by = this_one$club, name = "Age") %>%
+  #hc_yAxis(plotLines = list(plotline)) %>% 
+  hc_add_series_boxplot(x = this_one$Overall, by = this_one$club, name = 'Overall Rating')
+  
+
+
+
+```
+
+
+```{r}
+```
+
+
+```{r}
 ```
 
 

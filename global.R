@@ -21,52 +21,6 @@ la_liga_2.0 <- read_csv('data/la_liga_table.csv') %>%
   mutate (pos = order(order(points, decreasing = TRUE))) %>%
   ungroup()
 
-# order <- la_liga_2.0 %>% 
-#   arrange(pos) %>% 
-#   select(season,pos,Team = club,Played = total_matches,HW = home_win, HL = home_loss,HG = home_goals, 
-#          AW = away_win, AL = away_loss, AG = away_goals, 
-#          Wins = matches_won, Draws = matches_drawn, Losses = matches_lost,
-#          For = goals_scored,Against = goals_conceded,
-#          `Goal Diff` = goal_difference, Points = points)
-# 
-# order <- gt(order)
-# 
-# p <- order%>%
-#   #gt(rowname_col = "season") %>%
-#   
-#   tab_spanner(
-#     label = "HOME",
-#     columns = vars(HW, HL, HG)
-#   ) %>%
-#   tab_spanner(
-#     label = "AWAY",
-#     columns = vars(AW, AL, AG)
-#   ) %>% 
-#   tab_spanner(
-#     label = "TOTAL",
-#     columns = vars(Wins,Draws,Losses,For,
-#                    Against,`Goal Diff`,Points)
-#   )%>%
-#   tab_style(
-#     style = list(
-#       cell_fill(color = "red"),
-#       cell_text(color = "black")
-#     ),
-#     locations = cells_body(
-#       rows = pos >= 18)
-#   ) %>% 
-#   tab_style(
-#     style= list(
-#       cell_fill(color = 'lightgreen'),
-#       cell_text(color = 'black')
-#       
-#     ),
-#     locations = cells_body(
-#       rows = pos == 1)
-#   )
-
-
-
 
 
 # Generate Options for dropdown menu in ui
@@ -82,5 +36,44 @@ team <- la_liga_2.0 %>%
   select(club) %>% 
   unique()
 
+
+
+#bring in the player data and merge it to the la_liga_2.0
+#this data frame has year range 2007-2016
+with_players <-read_csv('data/fifa_player_data_07-17.csv') %>% 
+  rename(season = Year, club = Club) %>% 
+  filter(season >= 2007) %>% 
+  inner_join(la_liga_2.0, by = c('club', 'season')) %>% 
+  select(season, club, everything())
+
+year_with_player <- with_players %>% 
+  arrange(desc(season)) %>%
+  pull(season) %>%
+  # pull grabs values in a vector as a array. so I want all the years, this way
+  #the user can select each year
+  unique()
+
+team_with_player <- with_players %>% 
+  pull(club) %>% 
+  unique()
+
+
+##my function 
+find_new_players <- function ( year, team) {
+  
+  
+  A <- work_df %>% 
+    filter(club == team & season == as.integer(year)) %>% 
+    pull(Name)
+  
+  B <- work_df %>% 
+    filter(club == team & season == as.integer(year) -1) %>% 
+    pull(Name)
+  
+  difference <-setdiff(A, B)
+  
+  
+  return (difference)
+}
 
 

@@ -188,6 +188,23 @@ dashboardPage(skin = 'yellow',
        ),
       #fifth tab
       tabItem(tabName = 'info',
+              fluidRow(
+                tabBox(
+                  
+                  tabPanel('The Players',dataTableOutput("team_year"),
+                           selectInput('the_year',label = 'Select Year:', choices = year_with_player,
+                                       selected = 2008),
+                           selectInput('the_team', label = 'Select Team:', choices = team_with_player,
+                                       selected = 'Real Madrid')
+                    
+                  )
+                )
+              ),
+              
+              
+              
+              
+              
               
               # infoBoxes with fill=FALSE
               fluidRow(

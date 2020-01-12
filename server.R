@@ -583,6 +583,25 @@ function(input, output) {
       hc_title(text = paste('The winners and the number of times each team won the Leauge'))
   })
   
+  
+  
+  ########### unique player ##########
+  output$team_year <- renderDataTable({
+    
+   unique_players <- find_new_players(input$the_year, input$the_team)
+   
+  #browser()
+   
+   with_players %>% 
+     filter( season == input$the_year & Name %in% unique_players)
+    
+    
+
+
+
+  })
+  
+  
 }
 
 
