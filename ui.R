@@ -191,7 +191,11 @@ dashboardPage(skin = 'yellow',
               fluidRow(
                 tabBox(
                   
-                  tabPanel('The Players',dataTableOutput("team_year"),
+                  tabPanel('The Players',
+                           
+                           dataTableOutput("team_year"),
+                           
+                           
                            selectInput('the_year',label = 'Select Year:', choices = year_with_player,
                                        selected = 2008),
                            selectInput('the_team', label = 'Select Team:', choices = team_with_player,
@@ -200,6 +204,8 @@ dashboardPage(skin = 'yellow',
                   )
                 )
               ),
+              
+              
               
               
               
@@ -230,39 +236,90 @@ dashboardPage(skin = 'yellow',
               
               ),
       
-      #sevnth tab
+      #sixth tab
       tabItem(tabName = 'layout',
               fluidRow(
-                box(title = 'Box title', 'Box content'),
-                box(status = 'warning', 'Box content')
-              ),
-              fluidRow(
-                box(
-                  title = 'Title 1', width = 4,height = 300, solidHeader = TRUE, status = 'primary','Box content'
-                ),
-                box(
-                  title = 'Title 2', width = 4, solidHeader = TRUE, 'box content'
-                ),
-                box(
-                  title = 'Title 1', width = 4, solidHeader = TRUE, status = 'warning', 'box content'
+                tabBox(
+                  id = "tabset0",width = 12,
+                  tabPanel("The Squad",
+                           fluidRow(
+                           column(width = 6,box(width = NULL,highchartOutput('player_rating'))),
+                           column(width = 6,box(title = 'The Makeup of the Team',width = NULL, d3treeOutput('sunburst')))),
+                           #,#,width = '10',height = '450px'),
+                  #select year        
+                  selectInput('rating', label = 'Select Year:', choices = year_with_player,
+                                       selected = 2013),
+                  #select team
+                  selectInput('club_player_rating', label = 'Select Club:', choices = team_with_player,
+                                       selected = 'FC Barcelona'),
+                  
+                  highchartOutput('boxplot')
+                  
+                  )
                 )
+                
                 
               ),
               
-              fluidRow(
-                box(
-                  width = 4, background = 'black',
-                  'a box with a solid black background'
-                ),
-                box(
-                  title = 'title 5', width = 4, background = 'light-blue',
-                  'a box with a solid light-blue background'
-                ),
-                box(
-                  title = 'title 6', width = 4, background = 'maroon',
-                  'a box with a solid maroon background'
-                )
-              )
+             
+              #   box(title = 'Box title', 'Box content')
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              # fluidRow(
+              #   box(title = 'Box title', 'Box content'),
+              #   box(status = 'warning', 'Box content')
+              # ),
+              # fluidRow(
+              #   box(
+              #     title = 'Title 1', width = 4,height = 300, solidHeader = TRUE, status = 'primary','Box content'
+              #   ),
+              #   box(
+              #     title = 'Title 2', width = 4, solidHeader = TRUE, 'box content'
+              #   ),
+              #   box(
+              #     title = 'Title 1', width = 4, solidHeader = TRUE, status = 'warning', 'box content'
+              #   )
+              #   
+              # ),
+              # 
+              # fluidRow(
+              #   box(
+              #     width = 4, background = 'black',
+              #     'a box with a solid black background'
+              #   ),
+              #   box(
+              #     title = 'title 5', width = 4, background = 'light-blue',
+              #     'a box with a solid light-blue background'
+              #   ),
+              #   box(
+              #     title = 'title 6', width = 4, background = 'maroon',
+              #     'a box with a solid maroon background'
+              #   )
+              # )
          ),
       
       tabItem(tabName = 'column',

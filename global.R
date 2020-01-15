@@ -13,6 +13,7 @@ library(shiny)
 library(shinyWidgets)
 library(gt)
 library(highcharter)
+library(d3Tree)
 #bring in the data
 
 
@@ -58,6 +59,16 @@ team_with_player <- with_players %>%
   unique()
 
 
+####give it a try to make it that when a year is selected the teams for that year only appear 
+# team_grouped <- with_players %>% 
+#   group_by(season) %>% 
+#   filter(season == year_with_player) %>% 
+#   pull(club)
+
+###########
+
+
+
 ##my function 
 find_new_players <- function ( year, team) {
   
@@ -70,10 +81,28 @@ find_new_players <- function ( year, team) {
     filter(club == team & season == as.integer(year) -1) %>% 
     pull(Name)
   
-  difference <-setdiff(A, B)
+  filter <- work_df %>% 
+    filter(season == as.integer(year) -1) %>% 
+    select(club) %>% unique() %>% 
+    pull(club)
   
+  if (year == 2007){
+    difference <- 'The dataset for this section begins in 2007 and therefor is the benchmark. Please select a year above 2007. Thank you!'
+    
+  } else {
+    
+    
+    if (team %in% filter){
+      
+      difference <- setdiff(A,B)
+      
+    } else {
+      
+      difference <- 'Team was not in Leauge'
+    }
+    
+  }
   
   return (difference)
 }
-
 

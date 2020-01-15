@@ -1138,25 +1138,58 @@ work_df
 ```{r}
 find_new_players <- function ( year, team) {
   
-
-    A <- work_df %>% 
-    filter(club == team & season == year) %>% 
-    pull(Name)
+    A <- work_df %>%
+      filter(club == team & season == year) %>% 
+      pull(Name)
   
-    B <- work_df %>% 
-    filter(club == team & season == year -1) %>% 
-    pull(Name)
+    B <- work_df %>%
+      
+      filter(club == team & season == year -1) %>% 
+      pull(Name)
     
-    difference <-setdiff(A, B)
+    filter <- work_df %>% 
+      filter(season == year -1) %>% 
+      select(club) %>% unique() %>% 
+      pull(club)
+    
    
+    
+  if (year == 2007){
+    difference <- 'The dataset for this section begins in 2007 and therefor is the benchmark. Please select a year above 2007. Thank you!'
+    
+  } else {
+    
+    
+    if (team %in% filter){
+    
+     difference <- setdiff(A,B)
+    
+    } else {
+    
+     difference <- 'Team was not in Leauge'
+    }
+    
+  }
  
- return (difference)
+  return (difference)
 }
 
 ```
 
 ```{r}
-find_new_players(year = 2007, team = 'Real Madrid')
+
+```
+
+```{r}
+find_new_players(year = 2009, team = 'Real Madrid')
+```
+```{r}
+work_df %>%
+  select(season, club) %>% 
+  unique() %>% 
+  filter(season <= 2008)
+
+#2008	Real Murcia Club de Fútbol
 ```
 
 ```{r}
@@ -1279,9 +1312,7 @@ collapsibleTree(
 ```{r}
 #install.packages('d3Tree')
 #library(d3Tree)
-random_tree  <- sunburst_chart %>% 
-  group_by(club,Nationality, Name, Age,Position) %>% 
-  count()
+random_tree  <- sunburst_chart%>%group_by(club,Nationality, Name, Age,Position)%>%count()
 d3tree(list(root = df2tree(rootname = 'Your selected Team', struct = as.data.frame(random_tree)),
             layout = 'collapse'))
 
@@ -1361,22 +1392,32 @@ highchart() %>%
 
 
 ```{r}
+
 ```
 
 
 ```{r}
+
+
 ```
 
 
 ```{r}
+
+
 ```
 
 
 ```{r}
+with_players %>% 
+  mutate (win_percentage = round(matches_won/total_matches *100)) %>% 
+  select(season,club, win_percentage, everything())
+  
 ```
 
 
 ```{r}
+
 ```
 
 

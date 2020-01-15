@@ -585,7 +585,77 @@ function(input, output) {
   
   
   
-  ########### unique player ##########
+ ################ the circle chart for player rating ########## 
+   output$player_rating <- renderHighchart({
+     
+     rating <- with_players %>% 
+       filter(season == input$rating & club == input$club_player_rating ) %>% 
+       arrange(desc(Overall))
+     
+     
+     highchart() %>% 
+       hc_chart(polar = TRUE) %>% 
+       hc_title(text = paste('Players Rating for',input$club_player_rating,'in',input$rating),
+                style = list(fontWeight = 'bold', fontSize = '20px', align = 'center')) %>% 
+       hc_subtitle(text = '85 or higher is considered Elite Player',
+                   stype = list(fontWeight = 'bold'), align = 'center') %>% 
+       hc_xAxis(categories = rating$Name, style = list(fontWeight = 'bold')) %>% 
+       hc_legend(enabled = FALSE) %>% 
+       hc_series(
+         list(
+           name = "Bars",
+           data = rating$Overall,
+           colorByPoint = TRUE,
+           type = "column",
+           colors = ifelse(rating$Overall >= 85, 'purple','light')
+         ),
+         list(
+           name = 'Overall Rating',
+           data = rating$Overall,
+           pointPlacement = 'on',
+           type = 'line'
+         )
+       )
+   })
+ 
+ ############# add the tree line  map#############
+  
+  output$sunburst <- renderD3tree({
+    
+    random_tree <- with_players %>%
+      filter(season == input$rating & club == input$club_player_rating)
+    
+    random_tree <- random_tree %>%
+      group_by(Nationality, Name, Position, Age) %>% 
+      count()
+    
+    d3tree(list(root = df2tree(rootname = input$club_player_rating, struct = as.data.frame(random_tree)),
+               layout = 'collapse'))
+  })
+      
+
+##################box plot ##################
+  output$boxplot <- renderHighchart({ 
+    
+    
+    boxplot <- with_players %>% 
+      filter(season == input$rating)
+  
+    highchart() %>% 
+      hc_title(text = paste('Distribution of Age and Overall Rating per Team for the Year:',input$rating),
+                             style = list(fontWeight = 'bold', fontSize = '20px', align = 'center')) %>% 
+      hc_subtitle(text = 'Top performing teams have median Age between (24-27) and median Rating of 80 or greater',
+                  stype = list(fontWeight = 'bold'), align = 'center') %>%
+      hc_add_series_boxplot(x = boxplot$Age, by = boxplot$club, name = "Age") %>%
+      #hc_yAxis(plotLines = list(plotline)) %>% 
+      hc_add_series_boxplot(x = boxplot$Overall, by = boxplot$club, name = 'Overall Rating')
+  
+  })
+  
+
+  
+  
+  ########### unique player in one year and not the other ##########
   output$team_year <- renderDataTable({
     
    unique_players <- find_new_players(input$the_year, input$the_team)
@@ -593,13 +663,19 @@ function(input, output) {
   #browser()
    
    with_players %>% 
-     filter( season == input$the_year & Name %in% unique_players)
-    
-    
+     filter( season == input$the_year & Name %in% unique_players) %>% 
+     select(Name, Nationality, Age, Position, Overall)
+   
+  
 
 
 
   })
+  
+  
+  
+  
+ 
   
   
 }
