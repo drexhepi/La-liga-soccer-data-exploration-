@@ -110,51 +110,51 @@ find_new_players <- function ( year, team) {
 
 
 
-###########################################Function for New Player percentage###########################
+###########################################Function for New Player percentage############################
 #This function is very similar to the one above, Im just tryin to get the percent new players
 #for each team for a specific season
 
-# #the data frame used for the function
-#  df_percentage <-with_players %>%
-#    select(season, club, Name,Overall, matches_won, total_matches )
-#  
-#  #the function
-# find_new_pct <- function(team, year){
-#    previous_year_team <- df_percentage %>%
-#      filter(season == year -1) %>%
-#      pull(club)
-#  
-#    if( !(team %in% previous_year_team)) {
-#      return (NA)
-#  
-#    }
-#    A1 <- df_percentage %>%
-#      filter(club == team & season == year) %>%
-#      pull(Name)
-#  
-#    B1 <- df_percentage %>%
-#      filter(club == team & season == year -1) %>%
-#      pull(Name)
-#  
-#    difference1 <- setdiff(A1,B1)
-#  
-#    return ((length(difference1)/length(A1)) * 100)
-#  }
-#  
-#  new_player_pct <-df_percentage %>%
-#    rowwise() %>%
-#    #mutate(new_player_pct = find_new_pct('Real Madrid', 2016)) %>%
-#    mutate(new_player_pct = round(find_new_pct(club, season),2)) %>%
-#    ungroup()
-#  
-#  percent_colums_added <-new_player_pct %>%
-#    group_by(season,club) %>%
-#    mutate(win_percentage = round((matches_won/total_matches)*100,2),
-#           Overall_average = round(mean(Overall),2)) %>%
-#    ungroup() %>%
-#    select(season, club, new_player_pct, win_percentage, Overall_average) %>%
-#    group_by(season, club) %>%
-#    unique()
+#the data frame used for the function#
+ df_percentage <-with_players %>%
+   select(season, club, Name,Overall, matches_won, total_matches )
+
+ #the function
+find_new_pct <- function(team, year){
+   previous_year_team <- df_percentage %>%
+     filter(season == year -1) %>%
+     pull(club)
+
+   if( !(team %in% previous_year_team)) {
+     return (NA)
+
+   }
+   A1 <- df_percentage %>%
+     filter(club == team & season == year) %>%
+     pull(Name)
+
+   B1 <- df_percentage %>%
+     filter(club == team & season == year -1) %>%
+     pull(Name)
+
+   difference1 <- setdiff(A1,B1)
+
+   return ((length(difference1)/length(A1)) * 100)
+ }
+
+ new_player_pct <-df_percentage %>%
+   rowwise() %>%
+   #mutate(new_player_pct = find_new_pct('Real Madrid', 2016)) %>%
+   mutate(new_player_pct = round(find_new_pct(club, season),2)) %>%
+   ungroup()
+
+ percent_colums_added <-new_player_pct %>%
+   group_by(season,club) %>%
+   mutate(win_percentage = round((matches_won/total_matches)*100,2),
+          Overall_average = round(mean(Overall),2)) %>%
+   ungroup() %>%
+   select(season, club, new_player_pct, win_percentage, Overall_average) %>%
+   group_by(season, club) %>%
+   unique()
 
 
 

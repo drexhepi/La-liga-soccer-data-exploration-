@@ -11,7 +11,7 @@ dashboardPage(skin = 'yellow',
   
   
   
-  ###########################################SIDEBAR#######################################
+  ###########################################SIDEBAR########################################
   dashboardSidebar(
     
     div(a(href = 'https://www.laliga.com/en-GB', img(src = 'spain.jpg',width = 140, height = 70))),#this code

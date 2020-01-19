@@ -1,6 +1,6 @@
 #what gets updated/run as the user interacts with the interface
 
-####################the dashboard page##################
+####################the dashboard page###################
 
 
 function(input, output) {
@@ -323,21 +323,6 @@ output$unique_players <- renderHighchart({
   
   
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
   
