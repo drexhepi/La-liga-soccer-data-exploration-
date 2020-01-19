@@ -1,400 +1,14 @@
 #what gets updated/run as the user interacts with the interface
 
-
-
-##(code) function(input,output){
-##  observeEvent(input$clicks, {
- #   print(as.numeric(input$clicks))
- # })
-
-
-  #1 every output you want in teh graph needs to be saved as output$name of your
-  #output from the ui.R so here the name is hist
-  #2 you buid the actual plot that calling the renderPlot({}) and 
-  #3in the code you used to build the actual output i.e. for this one its the 
-  #sliderInput(InputId = 'num') to so accesss that you need to use 
-  #input$num 
-  
-  #the renderPlot is the reactive function. this creates the interact graph
- 
-#(code) output$hist <- renderPlot({
- 
-
-   #title <- '100 random normal values'
-    #hist(rnorm(100), main = title)#build objects to display with render()
-    #or you can use it with the input name
-    
-#(code)hist(rnorm(input$num), main = isolate({input$title}) )#####input$title)#so this is connected with the inputId from the ui.R, whenever that changes input$num also changes 
-#    })#this is how you access the input function
-#(conde)  output$stats <- renderPrint({
-#(code)    summary(rnorm(input$num))#this used the same input i.e. input$num as 
-    #the hist so this is how to get two diff visualization for on specific
-    #select by the user
-#  })
-#}
-
-#what is reactivity? 
-#input$x ------ > output$y(i.e. graphs, tables)
-#sliders ect..
-
-#reactive function toolkit
-# there are 7
-#### render*() function 
-#first one is Display output with render*()
-#to use it  renderPlot( { hist(rnorm(input$num)) })
-#you can add hundreds of code and the brackets will run it as one 
-
-#### modularize code with reactive()
-#reactive() builds a reactive object called reactive expression
-#ex. data <- reactive( {rnorm(input$num) })
-#are technically functions  i.e. call it data()
-#so the above can be rewriten as and still work the same way:
-  #function(input,output){ 
-    #data <- reactive({
-      #rnorm(input$num)
-   # })
-    #output$hist <- renderPlot( {
-      #hist(data())
-    #})
-   # output$stats <- renderPrint({
-      #summary(data())
-   #})
-#}
-
-####prevent reactions with isolate()
-#prevent the app from responding the the title name
-#isolate() returns the result as a non-racttive value
-#isolate({ rnorm(input$num) })
-
-###trigger code with observeEvent()
-#Action button
-#so observeEvent() works with the action button which is in the 
-#ui.R page
-# observeEvent(input$clicks, {print(input$clicks) })
-
-###observe()
-#also triggers code to run on server. uses same syntax as render*() and isolate()
-# observe({print(input$clicks) })
-
-###delay reactions with eventReactive()
-# similare to isolate() but this just delays it.
-#ex. i want the update button to change the graph 
-# data <- eventReactive ( input$go, {rnorm(input$num) })
-#so the above can be rewriten as and still work the same way:
-#function(input,output){ 
-#data <- eventReactive(input$go, {
-      #rnorm(input$num)
-# })
-#output$hist <- renderPlot( {
-#hist(data())
-#})
-#}
-
-###mamage state with reactive values()
-#creates a list of reactive values to manipulate programmatically
-# rv <- reactiveValues(data = rnorm(100))
-
-####in the ui.
-# fluidPage(
-#   actionButton(inputId = 'norm', label = 'Normal'),
-#   actionButton(inputId = 'unif', label = 'Uniform'),
-#   plotOutput('hist')
-# )
-# 
-# ##### in the server
-# function(input,output){
-#   rv <- reactiveValues(data = rnorm(100))
-#   
-#   observeEvent(input$norm, {rv$data <- rnomr(100)})
-#   observeEvent(input$unif, {rv$data <- runif(100)})
-#   
-#   output$hist <- renderPlot({
-#     hist(rv$data)
-#   })
-# }
-
-
-#how do you add content to a web page?
-# tags object
-# tags$h1()
-# tags$a(href = 'www.rstudio.com', 'RStudio')
-
-# a new paragrpah p()
-
-####add images to the app
-# img()
-# fluidPage(
-#   tags$img(height = 100,
-#            width= 100,
-#            src = 'http://www.rstudio.com/images/RStudio.2x.png')
-# )#src stands for source 
-
-###create a layout
-#use layout functions to position elements wthin you app
-
-#the two main functions are fluidRow()  and column(width = 2)
-
-#fluidRow() divides the app up into rows. it adds rows to the gird
-#each new row goes below the previous rows
-
-# fluidPage(
-#   fluidRow(),#row 1
-#   fluidRow() #row 2
-# )
-
-#the column()  adds columns within a row. each new column goes to the left
-#of the previous column
-##specify the width and offset of each column out of 12
-
-# fluidPage(
-#   fluidRow(
-#     column(3),
-#     column(5, sliderInput(...))#puts the slider in this column
-#   ),
-#   fluidRow(
-#     column(4, offset = 8,
-     # plotOutput('hist'))#offset column by 8 units,puts it to the right most side of the app
-#   )#puts the histogram in this column
-# )
-
-###assembly layers of panels
-#panels to group multiple elemets into a single unit with its own properties
-
-###using wellPanel() i.e. groups things together
-# fluidPage(
-#   wellPanel(
-#     sliderInput('num', 'choose a number',
-#                 value=23,1,100),
-#     textInput('title', value = 'histogram',
-#               label = 'write a title'),
-#   ),
-#   plotOutput('hist')
-# )
-
-#tabsetPanel() conbines tabs into a single panel. use tabls to navigate btween tabs
-
-# fluidPage(
-#   tabsetPanel(
-#     tabPanel('tab 1', 'contents'),
-#     tabPanel('tab 2', 'contents'),
-#     tabPanel( 'tab 3', 'contents')
-#   )
-# )
-
-###same as above expcept adding more material
-# fluidPage(title = 'Random generator',
-#   tabsetPanel(
-#     tabPanel(title = 'normal data',
-#              plotOutput('norm'),
-#              actionButton('renorm', 'resample')
-#              ),
-#     tabPanel(title = 'uniform data',
-#              plotOutput('unif'),
-#              actionButton('reunif','resample')
-#              ),
-#     tabPanel( title = 'chi squared data',
-#               plotOutput('chisq'),
-#               actionButton('rechisq', 'resample')
-#               )
-#   )
-# )
-
-
-
-###########use this ######
-
-## navlistPanel() combines tabs into a single panel. use links to navigate between tabs
-##very simialr to tabsetPanel excel it sets them up column wise 
-
-# fluidPage(
-#   navlistPanel(
-#     tabPanel('tab 1', 'contents'),
-#     tabPanel('tab 2', 'contents'),
-#     tabPanel( 'tab 3', 'contents')
-#   )
-# )
-
-
-###same as above expcept adding more material
-# fluidPage(title = 'Random generator',
-#   navlistPanel(
-#     tabPanel(title = 'normal data',
-#              plotOutput('norm'),
-#              actionButton('renorm', 'resample')
-#              ),
-#     tabPanel(title = 'uniform data',
-#              plotOutput('unif'),
-#              actionButton('reunif','resample')
-#              ),
-#     tabPanel( title = 'chi squared data',
-#               plotOutput('chisq'),
-#               actionButton('rechisq', 'resample')
-#               )
-#   )
-# )
-
-
-
-
-###layouts
-# sidebarLayout() use with sidebarPanel() and mainPanel() to divide app
-#into two sectinos.
-
-# fluidPage(
-#   sidebarLayout(
-#     sidebarPanel(),
-#     mainPanel()
-#   )
-# )
-
-
-### same as above with more features
-
-# fludPage(
-#   sidebarLayout(
-#     sliderInput(inputId = 'num',
-#                 label = 'choose a number',
-#                 value =21,1,100),
-#     testInput(inputId = 'title',
-#               label = 'write a title',
-#               value = 'histogram of random normal values')
-#   ),
-#   mainPanel(
-#     plotOutput('hist')
-#   )
-# )
-
-###### another good one to put on the app##
-
-#navbaPage() combines tabs into a single page. navbarPage() replaces fluidPage().requires title
-
-# navbarPage(title = 'Title',
-#            tabPanel('tab 1', 'contents'),
-#            tabPanel( 'tab 2', 'contents'),
-#            tabPanel( 'tab 3', 'contents')
-#            )
-
-
-###same as above expcept adding more material
-# navbarPage(title = 'Random generator',
-#   
-#     tabPanel(title = 'normal data',
-#              plotOutput('norm'),
-#              actionButton('renorm', 'resample')
-#              ),
-#     tabPanel(title = 'uniform data',
-#              plotOutput('unif'),
-#              actionButton('reunif','resample')
-#              ),
-#     tabPanel( title = 'chi squared data',
-#               plotOutput('chisq'),
-#               actionButton('rechisq', 'resample')
-#               )
-#   
-# )
-
-
-###########
-#this one is a good one
-#navbarMenu() combines 
-
-# navbarPage(title = 'Random generator',
-#   
-#     tabPanel(title = 'normal data',
-#              plotOutput('norm'),
-#              actionButton('renorm', 'resample')
-#              ),
-#   navbarMenu(title = 'other data',###the menu puts the last two tabs in a group of their own 
-#     tabPanel(title = 'uniform data',
-#              plotOutput('unif'),
-#              actionButton('reunif','resample')
-#              ),
-#     tabPanel( title = 'chi squared data',
-#               plotOutput('chisq'),
-#               actionButton('rechisq', 'resample')
-#               )
-#   )
-# )
-
-
-
 ####################the dashboard page##################
 
 
-#dashboardPage() comes in the shinydashboard package
-
-##In the ui.R
-# dashoardPage(
-#   dashboardheader(),
-#   dashboardSidbar(),
-#   dashboardBody()
-# )
-
-
-###   CSS ####
-#cascading style sheets CSS are a framework for customizing the 
-#apprearance of elements in a web page
-
-
 function(input, output) {
-  set.seed(122)
-  histdata <- rnorm(500)
   
-  output$plot1 <- renderPlot({
-    data <- histdata[seq_len(input$slider)]
-    hist(data)
-  })
-  #the currently selected tab from the first box
-  output$tabset1Selected <- renderText({input$tabset1})
-  
-  
-  #info box
-  output$progressBox <- renderInfoBox({
-    infoBox(
-      "Progress", paste0(25 + input$count, "%"), icon = icon("list"),
-      color = "purple"
-    )
-  })
-  output$approvalBox <- renderInfoBox({
-    infoBox(
-      "Approval", "80%", icon = icon("thumbs-up", lib = "glyphicon"),
-      color = "yellow"
-    )
-  })
-  
-  # Same as above, but with fill=TRUE
-  output$progressBox2 <- renderInfoBox({
-    infoBox(
-      "Progress", paste0(25 + input$count, "%"), icon = icon("list"),
-      color = "purple", fill = TRUE
-    )
-  })
-  output$approvalBox2 <- renderInfoBox({
-    infoBox(
-      "Approval", "80%", icon = icon("thumbs-up", lib = "glyphicon"),
-      color = "yellow", fill = TRUE
-    )
-  })
-  
-  
-#for the value Box
-  # output$progressBox <- renderValueBox({
-  #   valueBox(
-  #     paste0(25 + input$count, "%"), "Progress", icon = icon("list"),
-  #     color = "purple"
-  #   )
-  # })
-  # 
-  # output$approvalBox <- renderValueBox({
-  #   valueBox(
-  #     "80%", "Approval", icon = icon("thumbs-up", lib = "glyphicon"),
-  #     color = "yellow"
-  #   )
-  # })
-  ######################################
-  
-  #########################################
-  output$table <- render_gt({ 
+##################The League Table tab. tabName = League_Table ###################################
+
+  output$table <- render_gt({ #output$table. the table is the name given in the ur side
+    #so this is how the code is usually writen for all data visualization. 
     la_liga_2.0 %>% 
       arrange(pos) %>% 
       select(season,pos,Team = club,Played = total_matches,HW = home_win, HL = home_loss,HG = home_goals, 
@@ -403,8 +17,11 @@ function(input, output) {
              For = goals_scored,Against = goals_conceded,
              `Goal Diff` = goal_difference, Points = points) %>% 
       filter(season == input$year) %>% ###filter it before you make it into a gt() table
+      #this input$year is the conditional panel that I and for this tab. it allows user to select
+      # a year that they want. needs to be called like this (input$ then the name of your selector,
+      # for this example its year. to input$year)
       
-      gt() %>%
+      gt() %>%#this fuction turns the data into a gt table
       tab_spanner(
         label = "HOME",
         columns = vars(HW, HL, HG)
@@ -439,31 +56,26 @@ function(input, output) {
         columns = vars(season)) %>%
       tab_header(
           title = paste('The League Table:',input$year))
-    
-
-    
+  
     }) 
  
 
-  # Same as above, but with fill=TRUE
-  output$champ <- renderInfoBox({
+  # This is the green box that hows the team that won in that year 
+  output$champ <- renderInfoBox({#need to use the renderInfoBox 
     winner <-la_liga_2.0 %>% 
       filter(season == input$year) %>% 
       filter(pos == 1) %>% 
       select(club)
     
     infoBox(
-      
       "Winner", paste(winner), icon = icon("trophy"),
       color = "green", fill = TRUE
     )
   })
   
   #for the loser
+  #this is the Relegation ,red box, that has the three teams that are relegated 
   output$lost <- renderInfoBox({
-   
-    
-    #line <-c(18,19,20)
     loser <-la_liga_2.0 %>% 
       filter(season == input$year) %>% 
       filter(pos == 18 ) %>% 
@@ -479,16 +91,22 @@ function(input, output) {
       filter(pos == 20 ) %>% 
       select(club)
     
-    infoBox(
+    infoBox(#this got a little messi, but I had to do this to get the three teams to show
+      #in the relegation box. I think the box could not fit all three names in a list so 
+      #that to do it this way
      'Relegation', c(loser,",",loser1,",",loser2), icon = icon('window-close'),
       color = 'red', fill = TRUE
     )
   })
   
+
+############################The Overview tab. tabName = Overview###################################  
+  
   
 ### for the team wins/draws/losses chart
   output$team_results <- renderHighchart({
-  #seen like you have to do data.frame() in order for highchart() to work  
+  #seems like you have to do data.frame() in order for highchart() to work, but isnt always
+    #the case. because in the later figures in didnt have to do this part.
   chart <- data.frame(la_liga_2.0) %>% 
   filter(season == input$result)
   
@@ -585,6 +203,8 @@ function(input, output) {
   
   
   
+##########################  The Rating tab tabName = 'layout'  ##################################
+  
  ################ the circle chart for player rating ########## 
    output$player_rating <- renderHighchart({
      
@@ -644,7 +264,7 @@ function(input, output) {
     highchart() %>% 
       hc_title(text = paste('Distribution of Age and Overall Rating per Team for the Year:',input$rating),
                              style = list(fontWeight = 'bold', fontSize = '20px', align = 'center')) %>% 
-      hc_subtitle(text = 'Top performing teams have median Age between (24-27) and median Rating of 80 or greater',
+      hc_subtitle(text = 'Top performing teams have median Age between (23-26) and median Rating of 80 or greater',
                   stype = list(fontWeight = 'bold'), align = 'center') %>%
       hc_add_series_boxplot(x = boxplot$Age, by = boxplot$club, name = "Age") %>%
       #hc_yAxis(plotLines = list(plotline)) %>% 
@@ -653,6 +273,8 @@ function(input, output) {
   })
   
 
+  
+###################### The New Players tab, tabName = 'info' #################################### 
   
   
   ########### unique player in one year and not the other ##########
@@ -663,7 +285,7 @@ function(input, output) {
   #browser()
    
    with_players %>% 
-     filter( season == input$the_year & Name %in% unique_players) %>% 
+     filter( season == input$the_year & Name %in% unique_players & club == input$the_team ) %>% 
      select(Name, Nationality, Age, Position, Overall)
    
   
@@ -672,10 +294,32 @@ function(input, output) {
 
   })
   
+############### server for the new player percentage  
   
-  
-  
- 
+output$unique_players <- renderHighchart({
+
+  one_team <-percent_colums_added %>% filter(club == input$the_team)
+
+  highchart() %>%
+    hc_title(text = paste('How team performance is affected as new players join the roster')) %>%
+    hc_subtitle(text = paste('Does this say anything about', input$the_team,'?'),
+                 align = 'center') %>%
+    hc_xAxis(categories =one_team$season,
+             title = 'season') %>%
+    hc_add_series(name = 'Win Percentage',
+                  type = 'line',
+                  data = one_team$win_percentage) %>%
+    hc_add_series(name = 'Percent New Players',
+                  type = 'line',
+                  data = one_team$new_player_pct) %>%
+    # hc_add_series(name = 'Win Percentage',
+    #               type = 'line',
+    #               data = one_team$win_percentage) %>%
+    hc_tooltip(crosshairs = TRUE, shared = TRUE)%>%
+    hc_yAxis(title = list(text = "Percent"))
+
+
+})
   
   
 }
